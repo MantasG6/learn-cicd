@@ -3,8 +3,8 @@ package auth
 import (
 	"errors"
 	"net/http"
-	"testing"
 	"reflect"
+	"testing"
 )
 
 func TestNoAuth(t *testing.T) {
@@ -13,7 +13,7 @@ func TestNoAuth(t *testing.T) {
 	want := errors.New("no authorization header included")
 	if !reflect.DeepEqual(want, got) {
 		t.Fatalf("expected: %v, got: %v", want, got)
-   }
+	}
 }
 
 func TestAuthFormat(t *testing.T) {
@@ -24,7 +24,7 @@ func TestAuthFormat(t *testing.T) {
 	want := errors.New("malformed authorization header")
 	if !reflect.DeepEqual(want, got) {
 		t.Fatalf("expected: %v, got: %v", want, got)
-   }
+	}
 }
 
 func TestSuccess(t *testing.T) {
@@ -35,5 +35,5 @@ func TestSuccess(t *testing.T) {
 	want := "@jnnasdo1.,3214naJ!@HBFJS@IJIU$#@NUIANDSfn23"
 	if !reflect.DeepEqual(want, got) {
 		t.Fatalf("expected: %v, got: %v", want, got)
-   }
+	}
 }
