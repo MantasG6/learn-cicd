@@ -124,3 +124,60 @@ gcloud builds submit --tag REGION-docker.pkg.dev/PROJECT_ID/REPOSITORY/IMAGE:TAG
 *You can copy/paste the actual value for `REGION-docker.pkg.dev/PROJECT_ID/REPOSITORY` from the repo's page in the GCP console.*
 
 Commit and push your changes to GitHub. You should see the GitHub Action run and successfully build and push the Docker image to Google Artifact Registry.
+
+# Google Cloud Run
+
+Cloud Run is a serverless container hosting service. It's a great fit for Notely because it has a generous free tier, scales automatically, and automagically configures pesky infrastructure like:
+
+- Load balancing
+- DNS
+- HTTPS
+
+In a nutshell, we give Cloud Run a Docker image, and it runs it for us.
+
+## Cloud Run Services
+
+Cloud run has 2 types of applications:
+- Services
+- Jobs
+
+A "service" is a Cloud Run application that listens and responds to web requests, as opposed to a "job" which is simply a task that runs to completion.
+
+Notely makes sense as a service because it's a web application that needs to respond to web requests. It needs to serve the frontend, and it needs to respond to API requests.
+
+## Assignment
+
+For now, let's create a test service. Once we're comfortable with the process, we'll deploy Notely.
+
+1. Navigate to the Cloud Run section of the GCP console.
+2. Click "Create Service"
+3. Container image URL: Click `SELECT` -> Find your image in Artifact Registry
+4. Service name: `YOUR SERVICE NAME`
+5. Region: us-central1
+6. Check the "Allow unauthenticated invocations" checkbox. This will allow anyone to access the webpage the service serves without having to log in to GCP
+7. Ingress control: "All" checked (allow direct access to the service)
+8. Open "Container(s), Volumes, Networking, Security" and scroll to the bottom. Set the Maximum number of instances: `4`
+9. Create the service
+10. Wait for the service to deploy
+11. Click the service's URL to see the webpage it serves
+
+# Cloud Run Updates
+
+Now that we have a service configured and running, let's update our GitHub actions workflow to automatically deploy changes to the app when we push to the `main` branch.
+
+## Assignment
+
+1. Add a new step to the `deploy` job in the GitHub actions workflow to deploy the app to Cloud Run. Because we want to allow unauthenticated access to the app, we'll also need to add a new security setting to the Cloud Run service. I recommend simply adding this to the same step in CD:
+
+```
+- name: Deploy to Cloud Run
+  run: gcloud run deploy notely --image REGION-docker.pkg.dev/PROJECT_ID/REPO_NAME/IMAGE:TAG --region REGION --allow-unauthenticated --project PROJECT_ID --max-instances=4
+```
+
+2. Target the us-central1 region for service deployment and the latest image.
+
+## Make a Change and Push to GitHub
+
+3. Change the `/static/index.html` file so that the `h1` tag says "Welcome to Notely" instead of just "Notely".
+4. Commit and push your changes to GitHub. You should see the GitHub Action run and successfully deploy the new version of the app to Cloud Run.
+5. Open the URL in your browser and you should see the new version of the app.
